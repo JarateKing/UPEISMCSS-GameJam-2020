@@ -5,8 +5,8 @@ using namespace std;
 
 #define DISP_W 100
 #define DISP_H 30
-#define MAP_W 200
-#define MAP_H 200
+#define MAP_W 1000
+#define MAP_H 1000
 
 char** world;
 
@@ -55,14 +55,57 @@ void render() {
 	drawhp();
 }
 
-int main() {
-	world = new char*[MAP_H];
+void generate() {
 	for (int i = 0; i < MAP_H; i++) {
-		world[i] = new char[MAP_W];
 		for (int j = 0; j < MAP_W; j++) {
 			world[i][j] = rando() ? '.' : ',';
 		}
 	}
+	
+	// generate random trees
+	int treeNum = rando(1000, 2000);
+	for (int i = 0; i < treeNum; i++) {
+		int x = rando(0, MAP_W);
+		int y = rando(0, MAP_H);
+		world[y][x] = 'T';
+	}
+	
+	// generate random boulders
+	int boulderNum = rando(400, 650);
+	for (int i = 0; i < boulderNum; i++) {
+		int r = rando(2, 8);
+		int x = rando(r + r, MAP_W - r - r);
+		int y = rando(r + r, MAP_H - r - r);
+		
+		for (int a = 2 * -r; a <= 2 * r; a++) {
+			for (int b = 2 * -r; b <= 2 * r; b++) {
+				double dist = (a - r) * (a - r) + (b - r) * (b - r);
+				if (dist < (r * r))
+					world[y + b][x + a] = 'B';
+			}
+		}
+	}
+	
+	// generate random buildings
+	int buildingNum = rando(500, 750);
+	for (int i = 0; i < buildingNum; i++) {
+		int w = rando(5, 20);
+		int h = rando(5, 20);
+		int x = rando(0, MAP_W - w);
+		int y = rando(0, MAP_H - h);
+		
+		for (int a = x; a < x + w; a++)
+			for (int b = y; b < y + h; b++)
+				world[b][a] = 'H';
+	}
+}
+
+int main() {
+	world = new char*[MAP_H];
+	for (int i = 0; i < MAP_H; i++)
+		world[i] = new char[MAP_W];
+	
+	generate();
 	
 	render();
 	
