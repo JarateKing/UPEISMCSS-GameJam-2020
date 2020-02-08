@@ -11,6 +11,16 @@ int rando(int min, int max) {
 	return rng() % (max - min) + min;
 }
 
+#define DISP_W 100
+#define DISP_H 30
+#define MAP_W 1000
+#define MAP_H 1000
+
+char** world;
+char** worldview;
+
+pair<int, int> view = {100,100};
+int health = 100;
 
 struct Enemy {
 	pair<int, int> pos;
@@ -41,7 +51,7 @@ struct Enemy {
 	}
 	
 	int GetDamage() {
-		return (int)(rando(100, 150 * damageMult) * 0.01f);
+		return (int)(rando(100 * damageMult, 250 * damageMult) * 0.01f);
 	}
 	
 	void TakeDamage(int damage) {
@@ -50,17 +60,6 @@ struct Enemy {
 			health = 0;
 	}
 };
-
-#define DISP_W 100
-#define DISP_H 30
-#define MAP_W 1000
-#define MAP_H 1000
-
-char** world;
-char** worldview;
-
-pair<int, int> view = {100,100};
-int health = 100;
 
 vector<Enemy> enemies;
 
@@ -87,6 +86,11 @@ void drawhp() {
 }
 
 void render() {
+	int minx = view.first - (DISP_W / 2);
+	int maxx = view.first - (DISP_W / 2) + DISP_W;
+	int miny = view.second - (DISP_H / 2);
+	int maxy = view.second - (DISP_H / 2) + DISP_H;
+	
 	// apply world to worldview
 	for (int i = 0; i < DISP_H; i++)
 		for (int j = 0; j < DISP_W; j++)
@@ -94,6 +98,13 @@ void render() {
 		
 	// add player
 	worldview[DISP_H / 2][DISP_W / 2] = '0';
+	
+	// add enemies
+	for (int i = 0; i < enemies.size(); i++) {
+		auto curpos = enemies[i].pos;
+		if (curpos.first >= minx && curpos.first < maxx && curpos.second >= miny && curpos.second < maxy)
+			worldview[curpos.second - miny][curpos.first - minx] = enemies[i].display;
+	}
 	
 	// render properly
 	for (int i = 0; i < DISP_H; i++) {
@@ -110,7 +121,7 @@ void generate() {
 	// generate grass / ground
 	for (int i = 0; i < MAP_H; i++) {
 		for (int j = 0; j < MAP_W; j++) {
-			world[i][j] = rando() ? '.' : ',';
+			world[i][j] = ' ';
 		}
 	}
 	
@@ -170,6 +181,19 @@ int main() {
 		view.second = rando(1, MAP_H - 1);
 	}
 	
+	// spawn initial enemies
+	for (int i = 0; i < 5; i++) {
+		int x = rando(view.first - DISP_W / 2, view.first + DISP_W / 2);
+		int y = rando(view.second - DISP_H / 2, view.second + DISP_H / 2);
+		
+		while (x >= 0 && x < MAP_W && y >= 0 && y < MAP_H && world[y][x] >= 'A' && world[y][x] <= 'Z') {
+			x = rando(view.first - DISP_W / 2, view.first + DISP_W / 2);
+			y = rando(view.second - DISP_H / 2, view.second + DISP_H / 2);
+		}
+		
+		enemies.push_back(Enemy({x,y}));
+	}
+	
 	render();
 	
 	while (_getwch()) {
@@ -185,19 +209,30 @@ int main() {
 			view.first++;
 		
 		// check if out of bounds or invalid
-		if ((view.first - (DISP_W / 2) < 0) ||
-			(view.first - (DISP_W / 2) + DISP_W >= MAP_W) ||
-			(view.second - (DISP_H / 2) < 0) ||
-			(view.second - (DISP_H / 2) + DISP_H >= MAP_H) ||
+		if ((view.first - (DISP_W / 2) <= 0) ||
+			(view.first - (DISP_W / 2) + DISP_W > MAP_W) ||
+			(view.second - (DISP_H / 2) <= 0) ||
+			(view.second - (DISP_H / 2) + DISP_H > MAP_H) ||
 			(world[view.second][view.first] >= 'A' && world[view.second][view.first] <= 'Z')) {
 				
 			view = prevView;
 		}
-		// check if attacking an enemy
-		else if (world[view.second][view.first] >= 'a' && world[view.second][view.first] <= 'z') {
-			
-			
-			view = prevView;
+		
+		// check if attacking enemy
+		for (int i = 0; i < enemies.size(); i++) {
+			if (view.first == enemies[i].pos.first && view.second == enemies[i].pos.second) {
+				enemies[i].TakeDamage(rando(1,10));
+				
+				if (enemies[i].health != 0) {
+					health -= enemies[i].GetDamage();
+				}
+				else {
+					enemies.erase(enemies.begin() + i);
+					i--;
+				}
+				
+				view = prevView;
+			}
 		}
 		
 		render();
