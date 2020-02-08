@@ -50,6 +50,9 @@ void render() {
 	for (int i = 0; i < DISP_H; i++)
 		for (int j = 0; j < DISP_W; j++)
 			worldview[i][j] = world[view.second - (DISP_H / 2) + i][view.first - (DISP_W / 2) + j];
+		
+	// add player
+	worldview[DISP_H / 2][DISP_W / 2] = '0';
 	
 	// render properly
 	for (int i = 0; i < DISP_H; i++) {
@@ -63,6 +66,7 @@ void render() {
 }
 
 void generate() {
+	// generate grass / ground
 	for (int i = 0; i < MAP_H; i++) {
 		for (int j = 0; j < MAP_W; j++) {
 			world[i][j] = rando() ? '.' : ',';
@@ -139,8 +143,14 @@ int main() {
 			health--;
 		
 		// check if out of bounds or invalid
-		if ((view.first - (DISP_W / 2) < 0) || (view.first - (DISP_W / 2) + DISP_W >= MAP_W) || (view.second - (DISP_H / 2) < 0) || (view.second - (DISP_H / 2) + DISP_H >= MAP_H))
+		if ((view.first - (DISP_W / 2) < 0) ||
+			(view.first - (DISP_W / 2) + DISP_W >= MAP_W) ||
+			(view.second - (DISP_H / 2) < 0) ||
+			(view.second - (DISP_H / 2) + DISP_H >= MAP_H) ||
+			(world[view.second][view.first] >= 'A' && world[view.second][view.first] <= 'Z')) {
+				
 			view = prevView;
+		}
 		
 		render();
 	}
