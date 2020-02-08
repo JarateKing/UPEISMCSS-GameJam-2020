@@ -1,7 +1,55 @@
 #include <bits/stdc++.h>
 #include <windows.h>
 using namespace std;
-#define fastio ios_base::sync_with_stdio(0);cin.tie(0);
+
+mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count());
+bool rando() {
+	return rng() % 2;
+}
+int rando(int min, int max) {
+	if (min == max) return min;
+	return rng() % (max - min) + min;
+}
+
+
+struct Enemy {
+	pair<int, int> pos;
+	int health, maxhp,damageMult;
+	char display;
+	
+	Enemy(pair<int, int> spawn) {
+		pos = spawn;
+		
+		int type = rando(0, 3);
+		if (type == 0) {
+			health = 10;
+			display = 'z';
+			damageMult = 2;
+		}
+		else if (type == 1) {
+			health = 20;
+			display = 'x';
+			damageMult = 1;
+		}
+		else {
+			health = 15;
+			display = 'y';
+			damageMult = 3;
+		}
+		
+		maxhp = health;
+	}
+	
+	int GetDamage() {
+		return (int)(rando(100, 150 * damageMult) * 0.01f);
+	}
+	
+	void TakeDamage(int damage) {
+		health -= damage;
+		if (health <= 0)
+			health = 0;
+	}
+};
 
 #define DISP_W 100
 #define DISP_H 30
@@ -14,14 +62,7 @@ char** worldview;
 pair<int, int> view = {100,100};
 int health = 100;
 
-mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count());
-bool rando() {
-	return rng() % 2;
-}
-int rando(int min, int max) {
-	if (min == max) return min;
-	return rng() % (max - min) + min;
-}
+vector<Enemy> enemies;
 
 bool isKeyPressed(char c) {
 	if (c >= 'a' && c <= 'z')
@@ -149,6 +190,12 @@ int main() {
 			(view.second - (DISP_H / 2) + DISP_H >= MAP_H) ||
 			(world[view.second][view.first] >= 'A' && world[view.second][view.first] <= 'Z')) {
 				
+			view = prevView;
+		}
+		// check if attacking an enemy
+		else if (world[view.second][view.first] >= 'a' && world[view.second][view.first] <= 'z') {
+			
+			
 			view = prevView;
 		}
 		
