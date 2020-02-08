@@ -195,15 +195,23 @@ void generate() {
 	}
 }
 
-int main() {
-	world = new char*[MAP_H];
-	for (int i = 0; i < MAP_H; i++) {
-		world[i] = new char[MAP_W];
-	}
-	
-	worldview = new char*[DISP_H];
-	for (int i = 0; i < DISP_H; i++)
-		worldview[i] = new char[DISP_W];
+void DrawLosescreen() {
+	cout << "\n";
+	cout << " __   __  _______  __   __        ___      _______  _______  _______  __ \n"; 
+	cout << "|  | |  ||       ||  | |  |      |   |    |       ||       ||       ||  |\n"; 
+	cout << "|  |_|  ||   _   ||  | |  |      |   |    |   _   ||  _____||_     _||  |\n"; 
+	cout << "|       ||  | |  ||  |_|  |      |   |    |  | |  || |_____   |   |  |  |\n"; 
+	cout << "|_     _||  |_|  ||       |      |   |___ |  |_|  ||_____  |  |   |  |__|\n"; 
+	cout << "  |   |  |       ||       |      |       ||       | _____| |  |   |   __ \n"; 
+	cout << "  |___|  |_______||_______|      |_______||_______||_______|  |___|  |__|\n"; 
+	cout << "\n";
+	cout << "Press 'R' to restart\n";
+}
+
+void StartGame() {
+	view = {100,100};
+	health = 100;
+	movespeed = 2;
 	
 	generate();
 	
@@ -227,6 +235,19 @@ int main() {
 	}
 	
 	render();
+}
+
+int main() {
+	world = new char*[MAP_H];
+	for (int i = 0; i < MAP_H; i++) {
+		world[i] = new char[MAP_W];
+	}
+	
+	worldview = new char*[DISP_H];
+	for (int i = 0; i < DISP_H; i++)
+		worldview[i] = new char[DISP_W];
+	
+	StartGame();
 	
 	int timestep = 0;
 	
@@ -272,6 +293,18 @@ int main() {
 				if (enemies[i].Move())
 					health -= enemies[i].GetDamage();
 		
-		render();
+		if (health <= 0) {
+			DrawLosescreen();
+			while (_getwch()) {
+				if (isKeyPressed('R')) {
+					enemies.clear();
+					StartGame();
+					timestep = 0;
+					break;
+				}
+			}
+		}
+		else
+			render();
 	}
 }
