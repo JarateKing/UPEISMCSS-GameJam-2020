@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include <windows.h>
 using namespace std;
+#define fastio ios_base::sync_with_stdio(0);cin.tie(0);
 
 mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count());
 bool rando() {
@@ -101,6 +102,10 @@ bool isKeyPressed(char c) {
 	return GetKeyState(c) & 0x8000;
 }
 
+void ClearScreen() {
+	system("cls");
+}
+
 void drawhp() {
 	string curhp = "-- HEALTH " + to_string(health) + "/100 ";
 	printf("%s", curhp.c_str());
@@ -118,6 +123,10 @@ void drawhp() {
 }
 
 void render() {
+	ClearScreen();
+	char buf[BUFSIZ];
+	setbuf(stdout, buf);
+	
 	int minx = view.first - (DISP_W / 2);
 	int maxx = view.first - (DISP_W / 2) + DISP_W;
 	int miny = view.second - (DISP_H / 2);
@@ -141,12 +150,15 @@ void render() {
 	// render properly
 	for (int i = 0; i < DISP_H; i++) {
 		for (int j = 0; j < DISP_W; j++) {
-			printf("%c", worldview[i][j]);
+			cout << worldview[i][j];
 		}
-		printf("\n");
+		cout << '\n';
 	}
 	
 	drawhp();
+	
+	fflush(stdout);
+	setbuf(stdout, NULL);
 }
 
 void generate() {
@@ -196,6 +208,7 @@ void generate() {
 }
 
 void DrawStartscreen() {
+	ClearScreen();
 	cout << " _______  _     _  _______  ______    ______     _______  _______ \n";
 	cout << "|       || | _ | ||       ||    _ |  |      |   |       ||       |\n";
 	cout << "|  _____|| || || ||   _   ||   | ||  |  _    |  |   _   ||    ___|\n";
@@ -212,9 +225,12 @@ void DrawStartscreen() {
 	cout << "      |_______||_______||__| |__||______| |_______||_______|      \n";
 	cout << "\n";
 	cout << "Press any of WASD to begin\n";
+	
+	fflush(stdout);
 }
 
 void DrawLosescreen() {
+	ClearScreen();
 	cout << "\n";
 	cout << " __   __  _______  __   __        ___      _______  _______  _______  __ \n"; 
 	cout << "|  | |  ||       ||  | |  |      |   |    |       ||       ||       ||  |\n"; 
@@ -225,6 +241,8 @@ void DrawLosescreen() {
 	cout << "  |___|  |_______||_______|      |_______||_______||_______|  |___|  |__|\n"; 
 	cout << "\n";
 	cout << "Press 'R' to restart\n";
+	
+	fflush(stdout);
 }
 
 void StartGame() {
