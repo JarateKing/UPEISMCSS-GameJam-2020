@@ -9,6 +9,7 @@ using namespace std;
 #define MAP_H 1000
 
 char** world;
+char** worldview;
 
 pair<int, int> view = {100,100};
 int health = 100;
@@ -45,9 +46,15 @@ void drawhp() {
 }
 
 void render() {
+	// apply world to worldview
+	for (int i = 0; i < DISP_H; i++)
+		for (int j = 0; j < DISP_W; j++)
+			worldview[i][j] = world[view.second - (DISP_H / 2) + i][view.first - (DISP_W / 2) + j];
+	
+	// render properly
 	for (int i = 0; i < DISP_H; i++) {
 		for (int j = 0; j < DISP_W; j++) {
-			printf("%c", world[view.second - (DISP_H / 2) + i][view.first - (DISP_W / 2) + j]);
+			printf("%c", worldview[i][j]);
 		}
 		printf("\n");
 	}
@@ -102,8 +109,13 @@ void generate() {
 
 int main() {
 	world = new char*[MAP_H];
-	for (int i = 0; i < MAP_H; i++)
+	for (int i = 0; i < MAP_H; i++) {
 		world[i] = new char[MAP_W];
+	}
+	
+	worldview = new char*[DISP_H];
+	for (int i = 0; i < DISP_H; i++)
+		worldview[i] = new char[DISP_W];
 	
 	generate();
 	
