@@ -11,6 +11,7 @@ using namespace std;
 char** world;
 
 pair<int, int> view = {100,100};
+int health = 100;
 
 mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count());
 bool rando() {
@@ -27,6 +28,22 @@ bool isKeyPressed(char c) {
 	return GetKeyState(c) & 0x8000;
 }
 
+void drawhp() {
+	string curhp = "-- HEALTH " + to_string(health) + "/100 ";
+	printf("%s", curhp.c_str());
+	for (int i = curhp.size(); i < DISP_W; i++)
+		printf("-");
+	printf("\n");
+	for (int i = 0; i < min(health, DISP_W); i++)
+		printf("=");
+	for (int i = health; i < 100; i++)
+		printf(" ");
+	printf("\n");
+	for (int i = 0; i < DISP_W; i++)
+		printf("-");
+	printf("\n");
+}
+
 void render() {
 	for (int i = 0; i < DISP_H; i++) {
 		for (int j = 0; j < DISP_W; j++) {
@@ -34,6 +51,8 @@ void render() {
 		}
 		printf("\n");
 	}
+	
+	drawhp();
 }
 
 int main() {
@@ -58,6 +77,11 @@ int main() {
 			view.second++;
 		if (isKeyPressed('D'))
 			view.first++;
+		
+		if (isKeyPressed('z'))
+			health++;
+		if (isKeyPressed('x'))
+			health--;
 		
 		// check if out of bounds or invalid
 		if ((view.first - (DISP_W / 2) < 0) || (view.first - (DISP_W / 2) + DISP_W >= MAP_W) || (view.second - (DISP_H / 2) < 0) || (view.second - (DISP_H / 2) + DISP_H >= MAP_H))
