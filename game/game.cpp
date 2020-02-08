@@ -86,7 +86,7 @@ struct Enemy {
 			}
 			
 			if (world[pos.second][pos.first] >= 'A' && world[pos.second][pos.first] <= 'Z')
-				oldpos = pos;
+				pos = oldpos;
 		}
 		
 		return false;
@@ -195,6 +195,25 @@ void generate() {
 	}
 }
 
+void DrawStartscreen() {
+	cout << " _______  _     _  _______  ______    ______     _______  _______ \n";
+	cout << "|       || | _ | ||       ||    _ |  |      |   |       ||       |\n";
+	cout << "|  _____|| || || ||   _   ||   | ||  |  _    |  |   _   ||    ___|\n";
+	cout << "| |_____ |       ||  | |  ||   |_||_ | | |   |  |  | |  ||   |___ \n";
+	cout << "|_____  ||       ||  |_|  ||    __  || |_|   |  |  |_|  ||    ___|\n";
+	cout << " _____| ||   _   ||       ||   |  | ||       |  |       ||   |    \n";
+	cout << "|_______||__| |__||_______||___|  |_||______|   |_______||___|    \n";
+	cout << "       _______  ___      _______  ______   _______  _______       \n";
+	cout << "      |  _    ||   |    |   _   ||      | |       ||       |      \n";
+	cout << "      | |_|   ||   |    |  |_|  ||  _    ||    ___||  _____|      \n";
+	cout << "      |       ||   |    |       || | |   ||   |___ | |_____       \n";
+	cout << "      |  _   | |   |___ |       || |_|   ||    ___||_____  |      \n";
+	cout << "      | |_|   ||       ||   _   ||       ||   |___  _____| |      \n";
+	cout << "      |_______||_______||__| |__||______| |_______||_______|      \n";
+	cout << "\n";
+	cout << "Press any of WASD to begin\n";
+}
+
 void DrawLosescreen() {
 	cout << "\n";
 	cout << " __   __  _______  __   __        ___      _______  _______  _______  __ \n"; 
@@ -246,6 +265,12 @@ int main() {
 	worldview = new char*[DISP_H];
 	for (int i = 0; i < DISP_H; i++)
 		worldview[i] = new char[DISP_W];
+	
+	DrawStartscreen();
+	while (_getwch()) {
+		if (isKeyPressed('W') || isKeyPressed('A') || isKeyPressed('S') || isKeyPressed('D'))
+			break;
+	}
 	
 	StartGame();
 	
