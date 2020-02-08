@@ -5,12 +5,12 @@ using namespace std;
 
 #define DISP_W 100
 #define DISP_H 30
-#define MAP_W 1000
-#define MAP_H 1000
+#define MAP_W 200
+#define MAP_H 200
 
 char** world;
 
-pair<int, int> view = {500,500};
+pair<int, int> view = {100,100};
 
 mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count());
 bool rando() {
@@ -19,6 +19,12 @@ bool rando() {
 int rando(int min, int max) {
 	if (min == max) return min;
 	return rng() % (max - min) + min;
+}
+
+bool isKeyPressed(char c) {
+	if (c >= 'a' && c <= 'z')
+		c = c - 'a' + 'A';
+	return GetKeyState(c) & 0x8000;
 }
 
 void render() {
@@ -42,14 +48,20 @@ int main() {
 	render();
 	
 	while (_getwch()) {
-		if (GetKeyState('W') & 0x8000)
+		auto prevView = view;
+		
+		if (isKeyPressed('W'))
 			view.second--;
-		if (GetKeyState('A') & 0x8000)
+		if (isKeyPressed('A'))
 			view.first--;
-		if (GetKeyState('S') & 0x8000)
+		if (isKeyPressed('S'))
 			view.second++;
-		if (GetKeyState('D') & 0x8000)
+		if (isKeyPressed('D'))
 			view.first++;
+		
+		// check if out of bounds or invalid
+		if ((view.first - (DISP_W / 2) < 0) || (view.first - (DISP_W / 2) + DISP_W >= MAP_W) || (view.second - (DISP_H / 2) < 0) || (view.second - (DISP_H / 2) + DISP_H >= MAP_H))
+			view = prevView;
 		
 		render();
 	}
