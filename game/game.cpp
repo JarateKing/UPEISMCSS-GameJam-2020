@@ -21,10 +21,11 @@ char** worldview;
 
 pair<int, int> view = {100,100};
 int health = 100;
+int movespeed = 2;
 
 struct Enemy {
 	pair<int, int> pos;
-	int health, maxhp,damageMult;
+	int health, maxhp,damageMult, speedMult;
 	char display;
 	
 	Enemy(pair<int, int> spawn) {
@@ -35,16 +36,19 @@ struct Enemy {
 			health = 10;
 			display = 'z';
 			damageMult = 2;
+			speedMult = 3;
 		}
 		else if (type == 1) {
 			health = 20;
 			display = 'x';
 			damageMult = 1;
+			speedMult = 1;
 		}
 		else {
 			health = 15;
 			display = 'y';
-			damageMult = 3;
+			damageMult = 2;
+			speedMult = 1;
 		}
 		
 		maxhp = health;
@@ -58,6 +62,34 @@ struct Enemy {
 		health -= damage;
 		if (health <= 0)
 			health = 0;
+	}
+	
+	bool Move() {
+		for (int i = 0; i < speedMult; i++) {
+			auto oldpos = pos;
+			
+			if (abs(view.first - pos.first) <= 1 && abs(view.second - pos.second) <= 1)
+				return true;
+			
+			// awful greedy pathfinding -- prone to getting caught on things
+			if (abs(view.first - pos.first) > abs(view.second - pos.second)) {
+				if (pos.first > view.first)
+					pos.first--;
+				else
+					pos.first++;
+			}
+			else {
+				if (pos.second > view.second)
+					pos.second--;
+				else
+					pos.second++;
+			}
+			
+			if (world[pos.second][pos.first] >= 'A' && world[pos.second][pos.first] <= 'Z')
+				oldpos = pos;
+		}
+		
+		return false;
 	}
 };
 
@@ -196,6 +228,8 @@ int main() {
 	
 	render();
 	
+	int timestep = 0;
+	
 	while (_getwch()) {
 		auto prevView = view;
 		
@@ -223,10 +257,7 @@ int main() {
 			if (view.first == enemies[i].pos.first && view.second == enemies[i].pos.second) {
 				enemies[i].TakeDamage(rando(1,10));
 				
-				if (enemies[i].health != 0) {
-					health -= enemies[i].GetDamage();
-				}
-				else {
+				if (enemies[i].health == 0) {
 					enemies.erase(enemies.begin() + i);
 					i--;
 				}
@@ -234,6 +265,12 @@ int main() {
 				view = prevView;
 			}
 		}
+		
+		// move enemies and attempt attacking
+		if (timestep++ % movespeed == 0)
+			for (int i = 0; i < enemies.size(); i++)
+				if (enemies[i].Move())
+					health -= enemies[i].GetDamage();
 		
 		render();
 	}
