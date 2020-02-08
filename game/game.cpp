@@ -400,6 +400,7 @@ int main() {
 			while (_getwch()) {
 				if (isKeyPressed('R')) {
 					enemies.clear();
+					items.clear();
 					StartGame();
 					timestep = 0;
 					break;
