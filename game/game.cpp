@@ -164,6 +164,12 @@ int main() {
 	
 	generate();
 	
+	// fix spawning in invalid spots
+	while (world[view.second][view.first] >= 'A' && world[view.second][view.first] <= 'Z') {
+		view.first = rando(1, MAP_W - 1);
+		view.second = rando(1, MAP_H - 1);
+	}
+	
 	render();
 	
 	while (_getwch()) {
@@ -177,11 +183,6 @@ int main() {
 			view.second++;
 		if (isKeyPressed('D'))
 			view.first++;
-		
-		if (isKeyPressed('z'))
-			health++;
-		if (isKeyPressed('x'))
-			health--;
 		
 		// check if out of bounds or invalid
 		if ((view.first - (DISP_W / 2) < 0) ||
