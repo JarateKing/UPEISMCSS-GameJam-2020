@@ -266,13 +266,27 @@ void DrawLosescreen() {
 	fflush(stdout);
 }
 
+pair<int, int> GetRandomBorder() {
+	int dir = rando(0, 4);
+	int x = 0, y = 0;
+	if (dir == 0 || dir == 2) {
+		x = rando(view.first - DISP_W / 2, view.first + DISP_W / 2);
+		y = (dir == 0) ? view.second - DISP_H / 2 : view.second + DISP_H / 2;
+	}
+	else {
+		x = (dir == 1) ? view.first - DISP_W / 2 : view.first + DISP_W / 2;
+		y = rando(view.second - DISP_H / 2, view.second + DISP_H / 2);
+	}
+	return {x,y};
+}
+
 void SpawnEnemy() {
-	int x = rando(view.first - DISP_W / 2, view.first + DISP_W / 2);
-	int y = rando(view.second - DISP_H / 2, view.second + DISP_H / 2);
+	auto pos = GetRandomBorder();
+	int x = pos.first, y = pos.second;
 	
 	while (x >= 0 && x < MAP_W && y >= 0 && y < MAP_H && world[y][x] >= 'A' && world[y][x] <= 'Z') {
-		x = rando(view.first - DISP_W / 2, view.first + DISP_W / 2);
-		y = rando(view.second - DISP_H / 2, view.second + DISP_H / 2);
+		pos = GetRandomBorder();
+		x = pos.first, y = pos.second;
 	}
 	
 	enemies.push_back(Enemy({x,y}));
@@ -373,12 +387,14 @@ int main() {
 				if (enemies[i].Move())
 					health -= enemies[i].GetDamage();
 		
+		// respawn enemies as needed
 		if (enemies.size() < enemyCap) {
 			SpawnEnemy();
 			SpawnEnemy();
 			enemyCap++;
 		}
 		
+		// check if you lost the game
 		if (health <= 0) {
 			DrawLosescreen();
 			while (_getwch()) {
