@@ -94,7 +94,20 @@ struct Enemy {
 	}
 };
 
+struct Item {
+	pair<int, int> pos;
+	
+	Item(pair<int, int> spawn) {
+		pos = spawn;
+	}
+	
+	int GetHealing() {
+		return rando(5, 10);
+	}
+};
+
 vector<Enemy> enemies;
+vector<Item> items;
 
 bool isKeyPressed(char c) {
 	if (c >= 'a' && c <= 'z')
@@ -139,6 +152,13 @@ void render() {
 		
 	// add player
 	worldview[DISP_H / 2][DISP_W / 2] = '0';
+	
+	// add items
+	for (int i = 0; i < items.size(); i++) {
+		auto curpos = items[i].pos;
+		if (curpos.first >= minx && curpos.first < maxx && curpos.second >= miny && curpos.second < maxy)
+			worldview[curpos.second - miny][curpos.first - minx] = '!';
+	}
 	
 	// add enemies
 	for (int i = 0; i < enemies.size(); i++) {
@@ -322,11 +342,22 @@ int main() {
 				enemies[i].TakeDamage(rando(1,10));
 				
 				if (enemies[i].health == 0) {
-					enemies.erase(enemies.begin() + i);
-					i--;
+					items.push_back(Item(enemies[i].pos));
+					enemies.erase(enemies.begin() + i--);
 				}
 				
 				view = prevView;
+			}
+		}
+		
+		// check if over an item
+		for (int i = 0; i < items.size(); i++) {
+			if (view.first == items[i].pos.first && view.second == items[i].pos.second) {
+				health += items[i].GetHealing();
+				items.erase(items.begin() + i--);
+				
+				if (health > 100)
+					health = 100;
 			}
 		}
 		
