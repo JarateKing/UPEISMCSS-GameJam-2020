@@ -23,6 +23,7 @@ char** worldview;
 pair<int, int> view = {100,100};
 int health = 100;
 int movespeed = 2;
+int enemyCap = 5;
 
 struct Enemy {
 	pair<int, int> pos;
@@ -265,10 +266,23 @@ void DrawLosescreen() {
 	fflush(stdout);
 }
 
+void SpawnEnemy() {
+	int x = rando(view.first - DISP_W / 2, view.first + DISP_W / 2);
+	int y = rando(view.second - DISP_H / 2, view.second + DISP_H / 2);
+	
+	while (x >= 0 && x < MAP_W && y >= 0 && y < MAP_H && world[y][x] >= 'A' && world[y][x] <= 'Z') {
+		x = rando(view.first - DISP_W / 2, view.first + DISP_W / 2);
+		y = rando(view.second - DISP_H / 2, view.second + DISP_H / 2);
+	}
+	
+	enemies.push_back(Enemy({x,y}));
+}
+
 void StartGame() {
 	view = {100,100};
 	health = 100;
 	movespeed = 2;
+	enemyCap = 5;
 	
 	generate();
 	
@@ -280,15 +294,7 @@ void StartGame() {
 	
 	// spawn initial enemies
 	for (int i = 0; i < 5; i++) {
-		int x = rando(view.first - DISP_W / 2, view.first + DISP_W / 2);
-		int y = rando(view.second - DISP_H / 2, view.second + DISP_H / 2);
-		
-		while (x >= 0 && x < MAP_W && y >= 0 && y < MAP_H && world[y][x] >= 'A' && world[y][x] <= 'Z') {
-			x = rando(view.first - DISP_W / 2, view.first + DISP_W / 2);
-			y = rando(view.second - DISP_H / 2, view.second + DISP_H / 2);
-		}
-		
-		enemies.push_back(Enemy({x,y}));
+		SpawnEnemy();
 	}
 	
 	render();
@@ -366,6 +372,12 @@ int main() {
 			for (int i = 0; i < enemies.size(); i++)
 				if (enemies[i].Move())
 					health -= enemies[i].GetDamage();
+		
+		if (enemies.size() < enemyCap) {
+			SpawnEnemy();
+			SpawnEnemy();
+			enemyCap++;
+		}
 		
 		if (health <= 0) {
 			DrawLosescreen();
