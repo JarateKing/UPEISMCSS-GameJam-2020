@@ -1,5 +1,7 @@
 #include <bits/stdc++.h>
+#include <windows.h>
 using namespace std;
+#define fastio ios_base::sync_with_stdio(0);cin.tie(0);
 
 #define DISP_W 100
 #define DISP_H 30
@@ -22,9 +24,9 @@ int rando(int min, int max) {
 void render() {
 	for (int i = 0; i < DISP_H; i++) {
 		for (int j = 0; j < DISP_W; j++) {
-			cout << world[view.second - (DISP_H / 2) + i][view.first - (DISP_W / 2) + j];
+			printf("%c", world[view.second - (DISP_H / 2) + i][view.first - (DISP_W / 2) + j]);
 		}
-		cout << '\n';
+		printf("\n");
 	}
 }
 
@@ -39,15 +41,14 @@ int main() {
 	
 	render();
 	
-	char input;
-	while (input = _getwch() && input != EOF) {
-		if (input == 'W')
+	while (_getwch()) {
+		if (GetKeyState('W') & 0x8000)
 			view.second--;
-		if (input == 'A')
+		if (GetKeyState('A') & 0x8000)
 			view.first--;
-		if (input == 'S')
+		if (GetKeyState('S') & 0x8000)
 			view.second++;
-		if (input == 'D')
+		if (GetKeyState('D') & 0x8000)
 			view.first++;
 		
 		render();
